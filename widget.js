@@ -3,7 +3,8 @@
   const currentScript = document.currentScript;
   const logoUrl = currentScript.getAttribute("data-logo") || "";
   const companyName = currentScript.getAttribute("data-company") || "Gebäudereinigung";
-  const endpoint = currentScript.getAttribute("data-endpoint") || "/api/chat";
+  const endpoint = "https://gebaeudereinigung-chatbot-demo.onrender.com/api/chat";
+
 
   // Floating Button erstellen
   const btn = document.createElement("button");
