@@ -6,6 +6,7 @@
   const endpoint = "https://gebaeudereinigung-chatbot-demo.onrender.com/api/chat";
 
 
+
   // Floating Button erstellen
   const btn = document.createElement("button");
   btn.id = "gr-widget-button";
