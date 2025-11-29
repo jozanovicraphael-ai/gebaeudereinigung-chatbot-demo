@@ -128,7 +128,8 @@ app.post("/api/chat", async (req, res) => {
   }
 });
 
-const PORT = process.env.PORT || 3000;
+const PORT = process.env.PORT;
+
 app.listen(PORT, () => {
   console.log("Gebäudereinigung Chatbot Backend läuft auf Port " + PORT);
 });
