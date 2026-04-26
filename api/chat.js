@@ -3,25 +3,37 @@ export default async function handler(req, res) {
     return res.status(405).json({ message: "Only POST requests allowed" });
   }
 
-  const { message } = req.body;
+  try {
+    const { messages } = req.body;
 
-  let reply = "Danke für deine Anfrage! Wir melden uns.";
+    let lastMessage = "";
 
-  if (!message) {
-    reply = "Bitte beschreibe dein Anliegen.";
+    if (Array.isArray(messages) && messages.length > 0) {
+      lastMessage = messages[messages.length - 1].content.toLowerCase();
+    }
+
+    let reply = "Danke für deine Anfrage! Wir melden uns.";
+
+    if (!lastMessage) {
+      reply = "Bitte beschreibe dein Anliegen.";
+    }
+
+    if (lastMessage.includes("glas")) {
+      reply = "Gerne! Wie groß sind die Glasflächen und wo befinden sie sich?";
+    }
+
+    if (lastMessage.includes("preis")) {
+      reply = "Unsere Preise hängen von Fläche und Aufwand ab. Möchtest du ein Angebot?";
+    }
+
+    if (lastMessage.includes("termin")) {
+      reply = "Wann soll die Reinigung stattfinden?";
+    }
+
+    res.status(200).json({ reply });
+
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ reply: "Serverfehler." });
   }
-
-  if (message.toLowerCase().includes("glas")) {
-    reply = "Gerne! Wie groß sind die Glasflächen und wo befinden sie sich?";
-  }
-
-  if (message.toLowerCase().includes("preis")) {
-    reply = "Unsere Preise hängen von Fläche und Aufwand ab. Möchtest du ein Angebot?";
-  }
-
-  if (message.toLowerCase().includes("termin")) {
-    reply = "Wann soll die Reinigung stattfinden?";
-  }
-
-  res.status(200).json({ reply });
 }
