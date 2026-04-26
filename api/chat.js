@@ -1,6 +1,6 @@
-module.exports = async (req, res) => {
+export default function handler(req, res) {
   if (req.method !== "POST") {
-    return res.status(405).json({ reply: "Nur POST erlaubt" });
+    return res.status(200).json({ reply: "API funktioniert!" });
   }
 
   try {
@@ -42,4 +42,4 @@ module.exports = async (req, res) => {
       reply: "Server läuft, aber Fehler intern."
     });
   }
-};
+}
