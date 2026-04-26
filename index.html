@@ -142,11 +142,12 @@
       </div>
     </div>
     <div id="chatBody" class="chat-body"></div>
-    <div class="status-line" id="statusLine">
-  Online · Verbunden mit Demo-Server (Render)
-</div>
 
+    <!-- ✅ FIXED STATUS -->
+    <div class="status-line" id="statusLine">
+      Online · System bereit
     </div>
+
     <div class="chat-footer">
       <input
         id="chatInput"
@@ -159,15 +160,14 @@
   </div>
 
   <script>
-    const API_URL = "https://gebaeudereinigung-chatbot-demo-esn5.onrender.com/api/chat";
-
+    // ✅ FIXED API
+    const API_URL = "/api/chat";
 
     const chatBody = document.getElementById("chatBody");
     const input = document.getElementById("chatInput");
     const sendBtn = document.getElementById("sendBtn");
     const statusLine = document.getElementById("statusLine");
 
-    // Verlauf an Backend schicken (damit es Kontext hat)
     const messages = [];
 
     function addMessage(role, text) {
@@ -187,14 +187,12 @@
       const text = input.value.trim();
       if (!text) return;
 
-      // UI aktualisieren
       addMessage("user", text);
       input.value = "";
       input.focus();
       sendBtn.disabled = true;
-      statusLine.textContent = "Denke nach… Anfrage wird verarbeitet…";
+      statusLine.textContent = "Denke nach…";
 
-      // Verlauf updaten
       messages.push({ role: "user", content: text });
 
       try {
@@ -204,29 +202,22 @@
           body: JSON.stringify({ messages })
         });
 
-        if (!res.ok) {
-          throw new Error("HTTP " + res.status);
-        }
-
         const data = await res.json();
-        const reply = data.reply || "Es gab ein Problem mit der Antwort.";
+        const reply = data.reply || "Fehler bei der Antwort.";
 
         messages.push({ role: "assistant", content: reply });
         addMessage("assistant", reply);
         statusLine.textContent = "Bereit für die nächste Anfrage.";
+
       } catch (err) {
         console.error(err);
-        addMessage(
-          "assistant",
-          "Entschuldigung, es gab einen Fehler beim Kontakt mit dem Server."
-        );
+        addMessage("assistant", "Server nicht erreichbar.");
         statusLine.textContent = "Fehler – bitte später erneut versuchen.";
       } finally {
         sendBtn.disabled = false;
       }
     }
 
-    // Enter-Taste = senden
     input.addEventListener("keydown", (e) => {
       if (e.key === "Enter") {
         e.preventDefault();
@@ -236,11 +227,9 @@
 
     sendBtn.addEventListener("click", sendMessage);
 
-    // Begrüßungsnachricht
     addMessage(
       "assistant",
-      "Willkommen! Ich bin der digitale Anfrage-Assistent für Gebäudereinigung.\n" +
-      "Beschreiben Sie mir kurz Ihr Objekt (z. B. Büro, Treppenhaus, Glasflächen) und Ihren Reinigungswunsch."
+      "Willkommen! Ich bin der digitale Anfrage-Assistent für Gebäudereinigung.\nBeschreiben Sie mir kurz Ihr Objekt und Ihren Reinigungswunsch."
     );
   </script>
 </body>
