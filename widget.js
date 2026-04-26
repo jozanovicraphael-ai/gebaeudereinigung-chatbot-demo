@@ -1,22 +1,20 @@
 (function () {
-  // Konfiguration aus Script-Tag lesen
   const currentScript = document.currentScript;
   const logoUrl = currentScript.getAttribute("data-logo") || "";
   const companyName = currentScript.getAttribute("data-company") || "Gebäudereinigung";
-  const endpoint = "https://gebaeudereinigung-chatbot-demo-esn5.onrender.com/api/chat";
 
+  // ✅ FIXED ENDPOINT
+  const endpoint = "/api/chat";
 
-
-
-  // Floating Button erstellen
   const btn = document.createElement("button");
   btn.id = "gr-widget-button";
   btn.innerText = "Anfrage starten";
   document.body.appendChild(btn);
 
-  // Widget-Fenster erstellen
   const widget = document.createElement("div");
   widget.id = "gr-widget-window";
+  widget.style.display = "none";
+
   widget.innerHTML = `
     <div id="gr-widget-header">
       <div id="gr-widget-header-logo">
@@ -34,6 +32,7 @@
       <button id="gr-send-btn">Senden</button>
     </div>
   `;
+
   document.body.appendChild(widget);
 
   const messagesEl = document.getElementById("gr-widget-messages");
@@ -41,7 +40,6 @@
   const sendBtn = document.getElementById("gr-send-btn");
   const closeBtn = document.getElementById("gr-widget-close");
 
-  // Chatverlauf intern speichern (für KI)
   const conversation = [];
 
   function addMessage(text, sender = "bot") {
@@ -60,10 +58,9 @@
   function startConversation() {
     messagesEl.innerHTML = "";
     conversation.length = 0;
-    addMessage("Willkommen! Ich helfe Ihnen bei Ihrer Reinigungsanfrage. Um welche Art Reinigung geht es (z. B. Büroreinigung, Treppenhausreinigung, Fensterreinigung)?", "bot");
+    addMessage("Willkommen! Ich helfe Ihnen bei Ihrer Reinigungsanfrage. Um welche Art Reinigung geht es?", "bot");
   }
 
-  // Button öffnet/schließt Widget
   btn.addEventListener("click", () => {
     const isOpen = widget.style.display === "flex";
     if (!isOpen) {
@@ -77,12 +74,10 @@
     }
   });
 
-  // Schließen oben rechts
   closeBtn.addEventListener("click", () => {
     widget.style.display = "none";
   });
 
-  // Senden-Handler
   sendBtn.addEventListener("click", handleSend);
   inputEl.addEventListener("keydown", (e) => {
     if (e.key === "Enter") handleSend();
@@ -91,35 +86,39 @@
   async function handleSend() {
     const text = inputEl.value.trim();
     if (!text) return;
+
     inputEl.value = "";
     addMessage(text, "user");
 
-    // Loader
     const loadingMsg = document.createElement("div");
     loadingMsg.classList.add("gr-msg", "gr-bot");
-    loadingMsg.textContent = "Einen Moment, ich prüfe Ihre Angaben …";
+    loadingMsg.textContent = "Einen Moment...";
     messagesEl.appendChild(loadingMsg);
-    messagesEl.scrollTop = messagesEl.scrollHeight;
 
     try {
       const response = await fetch(endpoint, {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ messages: conversation })
+        headers: {
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify({
+          message: text
+        })
       });
 
       const data = await response.json();
       messagesEl.removeChild(loadingMsg);
 
-      if (data && data.reply) {
+      if (data.reply) {
         addMessage(data.reply, "bot");
       } else {
-        addMessage("Leider ist ein Fehler aufgetreten. Bitte versuchen Sie es später erneut.", "bot");
+        addMessage("Fehler bei der Antwort.", "bot");
       }
+
     } catch (err) {
       console.error(err);
       messagesEl.removeChild(loadingMsg);
-      addMessage("Technisches Problem. Bitte versuchen Sie es später erneut.", "bot");
+      addMessage("Server nicht erreichbar.", "bot");
     }
   }
 })();
