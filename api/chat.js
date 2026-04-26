@@ -1,46 +1,45 @@
-export default async function handler(req, res) {
+module.exports = async (req, res) => {
   if (req.method !== "POST") {
     return res.status(405).json({ reply: "Nur POST erlaubt" });
   }
 
   try {
-    const body = req.body;
+    const body = req.body || {};
 
-    let userText = "";
+    let text = "";
 
-    // 👉 egal ob message oder messages kommt
     if (body.message) {
-      userText = body.message.toLowerCase();
+      text = body.message.toLowerCase();
     }
 
     if (Array.isArray(body.messages) && body.messages.length > 0) {
-      userText = body.messages[body.messages.length - 1].content.toLowerCase();
+      text = body.messages[body.messages.length - 1].content.toLowerCase();
     }
 
     let reply = "Danke für deine Anfrage!";
 
-    if (!userText) {
+    if (!text) {
       reply = "Bitte beschreibe dein Anliegen.";
     }
 
-    if (userText.includes("glas")) {
-      reply = "Gerne! Wie groß sind die Glasflächen und wo befinden sie sich?";
+    if (text.includes("glas")) {
+      reply = "Gerne! Wie groß sind die Glasflächen?";
     }
 
-    if (userText.includes("preis")) {
-      reply = "Unsere Preise hängen von Fläche und Aufwand ab. Möchtest du ein Angebot?";
+    if (text.includes("preis")) {
+      reply = "Die Preise hängen von Fläche und Aufwand ab.";
     }
 
-    if (userText.includes("termin")) {
+    if (text.includes("termin")) {
       reply = "Wann soll die Reinigung stattfinden?";
     }
 
     return res.status(200).json({ reply });
 
   } catch (err) {
-    console.error("API ERROR:", err);
+    console.error(err);
     return res.status(200).json({
-      reply: "Technischer Fehler, bitte später erneut versuchen."
+      reply: "Server läuft, aber Fehler intern."
     });
   }
-}
+};
